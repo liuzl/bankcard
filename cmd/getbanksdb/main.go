@@ -5,57 +5,22 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/liuzl/bankcard"
 	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"strings"
 )
 
 var (
-	svnCmd  = `svn export https://github.com/ramoona/banks-db/trunk/banks --force`
-	srcGlob = "./banks/*/*.json"
-	dstFile = `src/github.com/liuzl/bankcard/banks.go`
+	svnCmd    = `svn export https://github.com/ramoona/banks-db/trunk/banks --force`
+	srcGlob   = "./banks/*/*.json"
+	bankFile  = `src/github.com/liuzl/bankcard/banks.go`
+	indexFile = `src/github.com/liuzl/bankcard/index.go`
 )
-
-type Bank struct {
-	Name       string `json:"name"`
-	Country    string `json:"country"`
-	LocalTitle string `json:"localTitle"`
-	EngTitle   string `json:"engTitle"`
-	Url        string `json:"url"`
-	Color      string `json:"color"`
-	Prefixes   []int  `json:"prefixes"`
-}
-
-func (b *Bank) Key() string {
-	return b.Country + "_" + b.Name
-}
-
-func (b *Bank) Code(n int) string {
-	ind := ""
-	for i := 0; i < n; i++ {
-		ind += "\t"
-	}
-	output := bytes.Buffer{}
-	output.WriteString("&Bank{\n")
-	output.WriteString(fmt.Sprintf("%s\t%s,%s,%s,%s,%s,%s,\n", ind,
-		strconv.Quote(b.Name),
-		strconv.Quote(b.Country),
-		strconv.Quote(b.LocalTitle),
-		strconv.Quote(b.EngTitle),
-		strconv.Quote(b.Url),
-		strconv.Quote(b.Color)))
-	var strs []string
-	for _, i := range b.Prefixes {
-		strs = append(strs, strconv.Itoa(i))
-	}
-	output.WriteString(fmt.Sprintf("%s\t[]int{%s},\n", ind, strings.Join(strs, ",")))
-	output.WriteString(ind + "}")
-	return output.String()
-}
 
 func svnExport() {
 	cmd := exec.Command("/bin/bash", "-c", svnCmd)
@@ -93,8 +58,12 @@ func svnExport() {
 }
 
 func main() {
+	gopath, found := os.LookupEnv("GOPATH")
+	if !found {
+		log.Fatal("Missing $GOPATH environment variable")
+	}
 	log.Println("Fetching " + svnCmd + " from Github")
-	//svnExport()
+	svnExport()
 	files, err := filepath.Glob(srcGlob)
 	if err != nil {
 		log.Fatal(err)
@@ -110,7 +79,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		var bank Bank
+		var bank bankcard.Bank
 		if err = json.Unmarshal(b, &bank); err != nil {
 			log.Fatal(err)
 		}
@@ -123,6 +92,12 @@ func main() {
 	}
 	out1.WriteString("}")
 	out2.WriteString("}")
-	fmt.Println(out1.String())
-	fmt.Println(out2.String())
+	bankFile = filepath.Join(gopath, bankFile)
+	indexFile = filepath.Join(gopath, indexFile)
+	if err = ioutil.WriteFile(bankFile, out1.Bytes(), os.FileMode(0664)); err != nil {
+		log.Fatal(err)
+	}
+	if err = ioutil.WriteFile(indexFile, out2.Bytes(), os.FileMode(0664)); err != nil {
+		log.Fatal(err)
+	}
 }
