@@ -74,6 +74,7 @@ func main() {
 	out2.WriteString("package bankcard\n\n")
 	out1.WriteString("func init() {\n")
 	out2.WriteString("func init() {\n")
+	maxLen := 0
 	for _, file := range files {
 		b, err := ioutil.ReadFile(file)
 		if err != nil {
@@ -88,9 +89,14 @@ func main() {
 			key, bank.Code(1)))
 		for _, prefix := range bank.Prefixes {
 			out2.WriteString(fmt.Sprintf("\tIndex[%d] = %s\n", prefix, key))
+			p := strconv.Itoa(prefix)
+			if len(p) > maxLen {
+				maxLen = len(p)
+			}
 		}
 	}
 	out1.WriteString("}")
+	out1.WriteString(fmt.Sprintf("\n\nvar MaxLen = %d", maxLen))
 	out2.WriteString("}")
 	bankFile = filepath.Join(gopath, bankFile)
 	indexFile = filepath.Join(gopath, indexFile)
