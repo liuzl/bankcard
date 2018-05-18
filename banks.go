@@ -838,3 +838,5 @@ func init() {
 		[]int{534263,545703},
 	}
 }
+
+var MaxLen = 6

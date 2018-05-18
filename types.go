@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+type CardType struct {
+	Type     string   `json:"type"`
+	Prefixes []string `json:"prefixes"`
+}
+
 type Bank struct {
 	Name       string `json:"name"`
 	Country    string `json:"country"`
