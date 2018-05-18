@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +10,8 @@ import (
 	"log"
 	"os/exec"
 	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 var (
@@ -29,6 +32,29 @@ type Bank struct {
 
 func (b *Bank) Key() string {
 	return b.Country + "_" + b.Name
+}
+
+func (b *Bank) Code(n int) string {
+	ind := ""
+	for i := 0; i < n; i++ {
+		ind += "\t"
+	}
+	output := bytes.Buffer{}
+	output.WriteString("&Bank{\n")
+	output.WriteString(fmt.Sprintf("%s\t%s,%s,%s,%s,%s,%s,\n", ind,
+		strconv.Quote(b.Name),
+		strconv.Quote(b.Country),
+		strconv.Quote(b.LocalTitle),
+		strconv.Quote(b.EngTitle),
+		strconv.Quote(b.Url),
+		strconv.Quote(b.Color)))
+	var strs []string
+	for _, i := range b.Prefixes {
+		strs = append(strs, strconv.Itoa(i))
+	}
+	output.WriteString(fmt.Sprintf("%s\t[]int{%s},\n", ind, strings.Join(strs, ",")))
+	output.WriteString(ind + "}")
+	return output.String()
 }
 
 func svnExport() {
@@ -73,6 +99,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	out1 := bytes.Buffer{}
+	out2 := bytes.Buffer{}
+	out1.WriteString("package bankcard\n\n")
+	out2.WriteString("package bankcard\n\n")
+	out1.WriteString("func init() {\n")
+	out2.WriteString("func init() {\n")
 	for _, file := range files {
 		b, err := ioutil.ReadFile(file)
 		if err != nil {
@@ -82,6 +114,15 @@ func main() {
 		if err = json.Unmarshal(b, &bank); err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(bank.Key())
+		key := strconv.Quote(bank.Key())
+		out1.WriteString(fmt.Sprintf("\tBanks[%s] = %s\n",
+			key, bank.Code(1)))
+		for _, prefix := range bank.Prefixes {
+			out2.WriteString(fmt.Sprintf("\tIndex[%d] = %s\n", prefix, key))
+		}
 	}
+	out1.WriteString("}")
+	out2.WriteString("}")
+	fmt.Println(out1.String())
+	fmt.Println(out2.String())
 }
