@@ -1,7 +1,8 @@
 # 全球银行卡号码校验与信息查询
 
-## 资源
-* [alipay](https://ccdcapi.alipay.com/validateAndCacheCardInfo.json?cardNo=6222005865412565805&cardBinCheck=true)
+## 相关资料
+* [alipay](https://ccdcapi.alipay.com/validateAndCacheCardInfo.json?cardNo=6222005865412565805&cardBinCheck=true)银行卡号接口
+* [Payment card number](https://en.wikipedia.org/wiki/Payment_card_number)
 
 ## 银行卡号校验
 
