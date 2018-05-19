@@ -16,9 +16,29 @@ var (
 	MaxLenProMap = make(map[string]int)
 )
 
+func BinCheck(bin string) bool {
+	var t = [...]int{0, 2, 4, 6, 8, 1, 3, 5, 7, 9}
+	odd := len(bin) & 1
+	var sum int
+	for i, c := range bin {
+		if c < '0' || c > '9' {
+			return false
+		}
+		if i&1 == odd {
+			sum += t[c-'0']
+		} else {
+			sum += int(c - '0')
+		}
+	}
+	return sum%10 == 0
+}
+
 func FindBank(card string) (*BankPro, error) {
 	if len(card) < MaxLen || !goutil.StringIs(card, unicode.IsDigit) {
 		return nil, fmt.Errorf("format error")
+	}
+	if !BinCheck(card) {
+		return nil, fmt.Errorf("invalid card number")
 	}
 
 	for k, m := range BanksProMap {
