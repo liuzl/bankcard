@@ -28,7 +28,9 @@ func FindBank(card string) (*BankPro, error) {
 				return nil, err
 			}
 			if bank := IndexProMap[k][n]; bank != "" {
-				return m[bank], nil
+				if len(card) == m[bank].Length {
+					return m[bank], nil
+				}
 			}
 		}
 	}
