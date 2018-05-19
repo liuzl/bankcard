@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+var TypeName = map[string]string{
+	"dc":  "储蓄卡",
+	"cc":  "信用卡",
+	"scc": "准贷记卡",
+	"pc":  "预付费卡",
+}
+
 type Bank struct {
 	Name       string `json:"name"`
 	Country    string `json:"country"`
