@@ -60,14 +60,23 @@ func main() {
 
 	maxLen := 0
 	for _, item := range items {
+		gk := "cn_" + strings.ToLower(item.BankCode)
+		var b *bankcard.BankPro
 		for _, p := range item.Patterns {
-			b := &bankcard.BankPro{
-				Bank: bankcard.Bank{
-					Name:       strings.ToLower(item.BankCode),
-					Country:    "cn",
-					LocalTitle: item.BankName,
-				},
-				CardType: strings.ToLower(p.CardType),
+			if bank := bankcard.Banks[gk]; bank == nil {
+				b = &bankcard.BankPro{
+					Bank: bankcard.Bank{
+						Name:       strings.ToLower(item.BankCode),
+						Country:    "cn",
+						LocalTitle: item.BankName,
+					},
+					CardType: strings.ToLower(p.CardType),
+				}
+			} else {
+				b = &bankcard.BankPro{
+					Bank: *bank, CardType: strings.ToLower(p.CardType),
+				}
+				b.Prefixes = nil
 			}
 			matches := numReg.FindAllString(p.Reg, -1)
 			n := len(matches)
