@@ -30,10 +30,6 @@ type BankPro struct {
 	Length   int    `json:"length"`
 }
 
-func (b *BankPro) Key() string {
-	return fmt.Sprintf("%s_%s_%s_%d", b.Country, b.Name, b.CardType, b.Length)
-}
-
 func (b *Bank) Key() string {
 	return b.Country + "_" + b.Name
 }

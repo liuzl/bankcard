@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/liuzl/bankcard"
 	"github.com/liuzl/dl"
+	"github.com/rs/xid"
 	"io/ioutil"
 	"log"
 	"os"
@@ -91,7 +92,7 @@ func main() {
 			if prefixLen > maxLen {
 				maxLen = prefixLen
 			}
-			key := strconv.Quote(b.Key())
+			key := strconv.Quote(xid.New().String())
 			for i := 0; i < n-1; i++ {
 				prefix, err := strconv.Atoi(matches[i])
 				if err != nil {
