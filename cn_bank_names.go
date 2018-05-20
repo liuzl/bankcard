@@ -1,6 +1,6 @@
 package bankcard
 
-var ChianBankName = map[int]string{
+var ChinaBankName = map[int]string{
 	621098:   "邮储银行·绿卡通",
 	622150:   "邮储银行·绿卡银联标准卡",
 	622151:   "邮储银行·绿卡银联标准卡",
